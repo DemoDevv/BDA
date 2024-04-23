@@ -7,7 +7,7 @@ import compareSchedules from "../helpers/compare-schedules";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import type { TextChannel } from "discord.js";
+import type { MessageResolvable, TextChannel } from "discord.js";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
@@ -16,6 +16,7 @@ export default class ScheduleWorker extends Worker {
 
   private lastSchedule: Buffer | undefined = undefined;
   private idChannel: string;
+  private idMessage: string | null = null;
 
   constructor(client: Client) {
     super(client);
@@ -65,7 +66,26 @@ export default class ScheduleWorker extends Worker {
     const channel = (await this.client.channels.fetch(
       this.idChannel,
     )) as TextChannel;
-    await channel.send({
+
+    const message = await channel.send({
+      files: [schedule],
+    });
+
+    if (!this.idMessage) {
+      this.idMessage = message.id;
+    }
+  }
+
+  async updateMessageSchedule(schedule: Buffer): Promise<void> {
+    if (!this.idMessage) return;
+    const channel = (await this.client.channels.fetch(
+      this.idChannel,
+    )) as TextChannel;
+    const message = (await channel.messages.fetch(
+      this.idMessage,
+    )) as MessageResolvable;
+    const messagesManager = channel.messages;
+    await messagesManager.edit(message, {
       files: [schedule],
     });
   }
