@@ -23,10 +23,12 @@ export default class ScheduleWorker extends Worker {
   async start(): Promise<void> {
     console.log("Schedule worker started!");
     this.browser = await puppeteer.launch();
-    this.interval = setInterval(() => {
-      // emit an event when the schedule is updated
-      this.execute();
-    }, 5000); //  ajouter un system de dev et prod
+    this.interval = setInterval(
+      () => {
+        this.execute();
+      },
+      this.client.config.ENV == "DEV" ? 5000 : 300000,
+    );
   }
 
   async getSchedule(): Promise<Buffer | undefined> {
