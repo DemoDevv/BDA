@@ -1,9 +1,7 @@
 import { Events } from "discord.js";
-import Client from "./structs/Client";
+import config from "./config";
+import Client from "./structs/client";
 
-const config = {
-  TOKEN: Bun.env.TOKEN,
-};
 const client: Client = new Client(config);
 
 client.once(Events.ClientReady, (readyClient) => {

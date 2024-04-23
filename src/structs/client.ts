@@ -10,7 +10,7 @@ import path from "node:path";
 
 import deployCommands from "../helpers/deploy-commands";
 
-import type { Config } from "../config";
+import type { Config } from "../types";
 import type { Command } from "../commands/types";
 
 export default class Client extends DiscordClient {
