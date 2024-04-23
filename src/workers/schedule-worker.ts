@@ -51,7 +51,6 @@ export default class ScheduleWorker extends Worker {
   }
 
   async execute(): Promise<void> {
-    // run every 5 minutes
     const scheduleBuffer = await this.getSchedule();
     if (!scheduleBuffer) return;
     if (!this.lastSchedule) {
@@ -94,10 +93,15 @@ export default class ScheduleWorker extends Worker {
     lastSchedule: Buffer,
     newSchedule: Buffer,
   ): Promise<void> {
-    // update the schedule in a discord channel
     if (compareSchedules(lastSchedule, newSchedule)) return;
     if (!this.idMessage) await this.sendInScheduleChannel(newSchedule);
     else await this.updateMessageSchedule(newSchedule);
+  }
+
+  changeChannel(idChannel: string): void {
+    this.idChannel = idChannel;
+    this.idMessage = null;
+    this.lastSchedule = undefined;
   }
 
   async stop(): Promise<void> {
