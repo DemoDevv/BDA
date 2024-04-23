@@ -83,7 +83,7 @@ export default class Client extends DiscordClient {
 
     for (const file of workersFiles) {
       const Worker = await import(path.resolve(workersDir, file));
-      const worker: Worker = new Worker.default();
+      const worker: Worker = new Worker.default(this);
       this.workers.set(file.split(".")[0], worker);
       console.log(`Loaded worker: ${file}`);
     }

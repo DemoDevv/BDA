@@ -1,7 +1,11 @@
+import type Client from "./client";
+
 export default abstract class Worker {
+  public client: Client;
   public abstract interval: Timer | null;
 
-  constructor() {
+  constructor(client: Client) {
+    this.client = client;
     this.start();
   }
 
