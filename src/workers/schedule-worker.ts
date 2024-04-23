@@ -95,7 +95,7 @@ export default class ScheduleWorker extends Worker {
     newSchedule: Buffer,
   ): Promise<void> {
     // update the schedule in a discord channel
-    if (!compareSchedules(lastSchedule, newSchedule)) return; // FIXME: pas le bon signe pour l'instant
+    if (compareSchedules(lastSchedule, newSchedule)) return;
     if (!this.idMessage) await this.sendInScheduleChannel(newSchedule);
     else await this.updateMessageSchedule(newSchedule);
   }
