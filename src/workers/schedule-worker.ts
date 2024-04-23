@@ -4,7 +4,7 @@ import puppeteer from "puppeteer";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
-  public URL_SCHEDULE = "https://edt.univ-nantes.fr/iut_nantes/g191826.html";
+  public URL_SCHEDULE = "https://edt.univ-nantes.fr/iut_nantes/g191826.xml";
   public browser: Browser | null = null;
 
   constructor() {
@@ -17,24 +17,19 @@ export default class ScheduleWorker extends Worker {
     this.interval = setInterval(() => {
       // emit an event when the schedule is updated
       this.execute();
-    }, 10000);
+    }, 300000);
   }
 
   async getSchedule(): Promise<void> {
     const page = await this.browser?.newPage();
+    page?.setViewport({ width: 1920, height: 1080 });
     await page?.goto(this.URL_SCHEDULE);
-    const scheduleTable = await page?.$("table");
-    const clip = await scheduleTable?.boundingBox();
-    console.log(clip);
-    // await page?.screenshot({
-    //   path: "ressources/schedule.png",
-    //   clip: {
-    //     x: clip?.x!,
-    //     y: clip?.y!,
-    //     width: clip?.width!,
-    //     height: clip?.height!,
-    //   },
-    // });
+    const scheduleTable = await page?.$(
+      'body > span[style*="display: inline"][id]',
+    );
+    await scheduleTable?.screenshot({
+      path: "ressources/schedule.png",
+    });
     await page?.close();
     console.log("Schedule updated!");
   }
