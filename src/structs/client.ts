@@ -12,15 +12,18 @@ import deployCommands from "../helpers/deploy-commands";
 
 import type { Config } from "../types";
 import type { Command } from "../commands/types";
+import type Worker from "./worker";
 
 export default class Client extends DiscordClient {
   public config: Config;
   public commands: Collection<string, Command>;
+  public workers: Collection<string, Worker>;
 
   constructor(config: Config) {
     super({ intents: [GatewayIntentBits.Guilds] });
     this.config = config;
     this.commands = new Collection();
+    this.workers = new Collection();
   }
 
   async start(): Promise<void> {
@@ -48,6 +51,8 @@ export default class Client extends DiscordClient {
       }
     });
 
+    await this.loadWorkers();
+
     this.login(this.config.TOKEN);
   }
 
@@ -68,5 +73,23 @@ export default class Client extends DiscordClient {
     }
 
     return commandsJson;
+  }
+
+  async loadWorkers(): Promise<void> {
+    const workersDir = path.resolve("./src/workers");
+    const workersFiles = fs
+      .readdirSync(workersDir)
+      .filter((file) => file.endsWith(".ts"));
+
+    for (const file of workersFiles) {
+      const Worker = await import(path.resolve(workersDir, file));
+      const worker: Worker = new Worker.default();
+      this.workers.set(file.split(".")[0], worker);
+      console.log(`Loaded worker: ${file}`);
+    }
+  }
+
+  getWorkers(): Collection<string, Worker> {
+    return this.workers;
   }
 }
