@@ -7,6 +7,7 @@ import compareSchedules from "../helpers/compare-schedules";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
+import type { Channel, TextChannel } from "discord.js";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
@@ -14,10 +15,12 @@ export default class ScheduleWorker extends Worker {
   public browser: Browser | null = null;
 
   private lastSchedule: Buffer | undefined = undefined;
+  private idChannel: string;
 
   constructor(client: Client) {
     super(client);
-    this.client.on(ScheduleEvent.UPDATE, this.updateDiscordSchedule);
+    this.idChannel = client.config.ID_CHANNEL_SCHEDULE!;
+    this.client.on(ScheduleEvent.UPDATE, this.updateDiscordSchedule.bind(this));
   }
 
   async start(): Promise<void> {
@@ -52,9 +55,19 @@ export default class ScheduleWorker extends Worker {
     if (!scheduleBuffer) return;
     if (!this.lastSchedule) {
       this.lastSchedule = scheduleBuffer;
+      await this.sendInScheduleChannel(scheduleBuffer);
       return;
     }
     this.client.emit(ScheduleEvent.UPDATE, this.lastSchedule!, scheduleBuffer!);
+  }
+
+  async sendInScheduleChannel(schedule: Buffer): Promise<void> {
+    const channel = (await this.client.channels.fetch(
+      this.idChannel,
+    )) as TextChannel;
+    await channel.send({
+      files: [schedule],
+    });
   }
 
   async updateDiscordSchedule(
@@ -63,7 +76,7 @@ export default class ScheduleWorker extends Worker {
   ): Promise<void> {
     // update the schedule in a discord channel
     if (!compareSchedules(lastSchedule, newSchedule)) return;
-    console.log("test");
+    await this.sendInScheduleChannel(newSchedule);
   }
 
   async stop(): Promise<void> {
