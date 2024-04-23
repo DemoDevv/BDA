@@ -7,7 +7,7 @@ import compareSchedules from "../helpers/compare-schedules";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import type { Channel, TextChannel } from "discord.js";
+import type { TextChannel } from "discord.js";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
