@@ -36,6 +36,8 @@ COPY --from=prerelease /usr/src/app/src ./src/
 COPY --from=prerelease /usr/src/app/package.json .
 COPY --from=prerelease /usr/src/app/.env .
 
+ENV ENV=PROD
+
 RUN chown -R bun:bun /usr/src/app
 
 # run the app
