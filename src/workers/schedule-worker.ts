@@ -26,7 +26,13 @@ export default class ScheduleWorker extends Worker {
 
   async start(): Promise<void> {
     console.log("Schedule worker started!");
-    this.browser = await puppeteer.launch();
+    if (this.client.config.CHROME_BIN) {
+      this.browser = await puppeteer.launch({
+        executablePath: this.client.config.CHROME_BIN,
+      });
+    } else {
+      this.browser = await puppeteer.launch();
+    }
     this.interval = setInterval(
       () => {
         this.execute();
@@ -42,12 +48,10 @@ export default class ScheduleWorker extends Worker {
     const scheduleTable = await page?.$(
       'body > span[style*="display: inline"][id]',
     );
-    const scheduleFile = await scheduleTable?.screenshot({
-      path: "ressources/schedule.png",
-    });
+    const scheduleBuffer = await scheduleTable?.screenshot();
     await page?.close();
     console.log("Schedule updated!");
-    return scheduleFile;
+    return scheduleBuffer;
   }
 
   async execute(): Promise<void> {

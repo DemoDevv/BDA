@@ -6,6 +6,7 @@ const config = {
   TOKEN: Bun.env.TOKEN,
   CLIENT_ID: Bun.env.CLIENT_ID,
   ID_CHANNEL_SCHEDULE: Bun.env.ID_CHANNEL_SCHEDULE,
+  CHROME_BIN: Bun.env.CHROME_BIN,
   save: async () => {
     fs.writeFileSync(
       path.resolve("./.env"),
