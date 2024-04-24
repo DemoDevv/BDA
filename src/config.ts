@@ -6,6 +6,7 @@ const config = {
   TOKEN: Bun.env.TOKEN,
   DEV_TOKEN: Bun.env.DEV_TOKEN,
   CLIENT_ID: Bun.env.CLIENT_ID,
+  CLIENT_ID_DEV: Bun.env.CLIENT_ID_DEV,
   ID_CHANNEL_SCHEDULE: Bun.env.ID_CHANNEL_SCHEDULE,
   CHROME_BIN: Bun.env.CHROME_BIN,
   save: async () => {

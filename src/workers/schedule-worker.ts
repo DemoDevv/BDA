@@ -51,7 +51,6 @@ export default class ScheduleWorker extends Worker {
     );
     const scheduleBuffer = await scheduleTable?.screenshot();
     await page?.close();
-    console.log("Schedule updated!");
     return scheduleBuffer;
   }
 
@@ -63,6 +62,7 @@ export default class ScheduleWorker extends Worker {
       await this.sendInScheduleChannel(scheduleBuffer);
       return;
     }
+    console.log("Schedule updated!");
     this.client.emit(ScheduleEvent.UPDATE, this.lastSchedule!, scheduleBuffer!);
   }
 
