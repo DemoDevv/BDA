@@ -53,7 +53,9 @@ export default class Client extends DiscordClient {
 
     await this.loadWorkers();
 
-    this.login(this.config.TOKEN);
+    this.login(
+      this.config.ENV == "DEV" ? this.config.DEV_TOKEN : this.config.TOKEN,
+    );
   }
 
   async loadCommands(): Promise<string[]> {

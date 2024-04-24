@@ -4,6 +4,7 @@ import path from "node:path";
 const config = {
   ENV: Bun.env.ENV,
   TOKEN: Bun.env.TOKEN,
+  DEV_TOKEN: Bun.env.DEV_TOKEN,
   CLIENT_ID: Bun.env.CLIENT_ID,
   ID_CHANNEL_SCHEDULE: Bun.env.ID_CHANNEL_SCHEDULE,
   CHROME_BIN: Bun.env.CHROME_BIN,
