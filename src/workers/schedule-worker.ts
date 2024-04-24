@@ -29,6 +29,7 @@ export default class ScheduleWorker extends Worker {
     if (this.client.config.CHROME_BIN) {
       this.browser = await puppeteer.launch({
         executablePath: this.client.config.CHROME_BIN,
+        args: ["--no-sandbox"],
       });
     } else {
       this.browser = await puppeteer.launch();
