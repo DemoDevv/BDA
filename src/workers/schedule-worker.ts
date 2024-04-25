@@ -1,5 +1,7 @@
-import type { Browser } from "puppeteer";
 import puppeteer from "puppeteer";
+import type { Browser } from "puppeteer";
+
+import type { MessageResolvable, TextChannel } from "discord.js";
 
 import { ScheduleEvent } from "../events";
 
@@ -7,7 +9,6 @@ import compareSchedules from "../helpers/compare-schedules";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import type { MessageResolvable, TextChannel } from "discord.js";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
