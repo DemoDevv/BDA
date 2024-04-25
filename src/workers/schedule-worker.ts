@@ -45,7 +45,7 @@ export default class ScheduleWorker extends Worker {
 
   async getSchedule(): Promise<Buffer | undefined> {
     const page = await this.browser?.newPage();
-    page?.setViewport({ width: 1920, height: 1080 });
+    page?.setViewport({ width: 1000, height: 1000 });
     await page?.goto(this.URL_SCHEDULE);
     const scheduleTable = await page?.$(
       'body > span[style*="display: inline"][id]',
