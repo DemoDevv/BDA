@@ -3,6 +3,8 @@ import {
   Client as DiscordClient,
   Events,
   GatewayIntentBits,
+  Guild,
+  User,
 } from "discord.js";
 
 import fs from "node:fs";
@@ -20,7 +22,9 @@ export default class Client extends DiscordClient {
   public workers: Collection<string, Worker>;
 
   constructor(config: Config) {
-    super({ intents: [GatewayIntentBits.Guilds] });
+    super({
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+    });
     this.config = config;
     this.commands = new Collection();
     this.workers = new Collection();

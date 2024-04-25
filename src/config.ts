@@ -8,6 +8,7 @@ const config = {
   CLIENT_ID: Bun.env.CLIENT_ID,
   CLIENT_ID_DEV: Bun.env.CLIENT_ID_DEV,
   ID_CHANNEL_SCHEDULE: Bun.env.ID_CHANNEL_SCHEDULE,
+  ID_ROLE_FEUILLE: Bun.env.ID_ROLE_FEUILLE,
   CHROME_BIN: Bun.env.CHROME_BIN,
   save: async () => {
     fs.writeFileSync(
