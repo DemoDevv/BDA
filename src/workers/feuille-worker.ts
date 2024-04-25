@@ -12,6 +12,17 @@ export default class FeuilleWorker extends Worker {
   public browser: Browser | null = null;
 
   public idRole: string | null = null;
+  private alternants: string[] = [
+    "Maximilien B",
+    "Léo C",
+    "Thomas H",
+    "Mathieu L",
+    "Edouard M",
+    "Julien S",
+    "Loïc T",
+    "Nolan V",
+    "Louis V",
+  ];
 
   constructor(client: Client) {
     super(client);
@@ -74,6 +85,7 @@ export default class FeuilleWorker extends Worker {
     );
     const role = guildWithRole?.roles.cache.get(this.idRole!);
 
+    // FIXME: n'est pas dans l'ordre souhaité'
     const members = (await guildWithRole?.members.fetch())!.filter(
       (member) => !member.user.bot,
     );
