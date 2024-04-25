@@ -46,12 +46,14 @@ export default class FeuilleWorker extends Worker {
     // wait the sunday at 00:00 to start the worker
     const now = new Date();
     const timeToWait =
-      7 * 24 * 60 * 60 * 1000 -
-      (now.getDay() * 24 * 60 * 60 * 1000 +
-        now.getHours() * 60 * 60 * 1000 +
-        now.getMinutes() * 60 * 1000 +
-        now.getSeconds() * 1000 +
-        now.getMilliseconds());
+      this.client.config.ENV == "DEV"
+        ? 5000
+        : 7 * 24 * 60 * 60 * 1000 -
+          (now.getDay() * 24 * 60 * 60 * 1000 +
+            now.getHours() * 60 * 60 * 1000 +
+            now.getMinutes() * 60 * 1000 +
+            now.getSeconds() * 1000 +
+            now.getMilliseconds());
     console.log(`Waiting ${timeToWait}ms to start the worker`);
     this.timeout = setTimeout(() => {
       console.log("[Feuille Worker] Starting the worker");
@@ -85,10 +87,21 @@ export default class FeuilleWorker extends Worker {
     );
     const role = guildWithRole?.roles.cache.get(this.idRole!);
 
-    // FIXME: n'est pas dans l'ordre souhaité'
-    const members = (await guildWithRole?.members.fetch())!.filter(
-      (member) => !member.user.bot,
-    );
+    let members;
+
+    if (this.client.config.ENV == "DEV") {
+      members = (await guildWithRole?.members.fetch())!.filter(
+        (member) => !member.user.bot,
+      );
+    } else {
+      members = (await guildWithRole?.members.fetch())!
+        .filter((member) => !member.user.bot)
+        .sort((a, b) => {
+          const aIndex = this.alternants.indexOf(a.displayName);
+          const bIndex = this.alternants.indexOf(b.displayName);
+          return aIndex - bIndex;
+        });
+    }
 
     // get the last member with the role if he exists
     const lastMember = members?.find((member) =>
