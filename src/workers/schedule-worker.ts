@@ -1,6 +1,9 @@
 import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
 
+import fs from "node:fs";
+import path from "node:path";
+
 import type { MessageResolvable, TextChannel } from "discord.js";
 
 import { ScheduleEvent } from "../events";
@@ -16,12 +19,40 @@ export default class ScheduleWorker extends Worker {
   public browser: Browser | null = null;
 
   private lastSchedule: Buffer | undefined = undefined;
-  private idChannel: string;
+  private idChannel: string | null = null;
   private idMessage: string | null = null;
+  private dataPath = path.resolve(__dirname, "../../data/schedule.json");
 
   constructor(client: Client) {
     super(client);
-    this.idChannel = client.config.ID_CHANNEL_SCHEDULE!;
+
+    if (!client.config.ID_CHANNEL_SCHEDULE) {
+      console.error("Channel ID not found in config");
+
+      if (fs.existsSync(this.dataPath)) {
+        const data = JSON.parse(fs.readFileSync(this.dataPath, "utf-8"));
+
+        if (data.idChannel) {
+          this.idChannel = data.idChannel;
+        }
+      } else {
+        console.error(
+          "Data file not found. Please provide a channel ID in the config file.",
+        );
+        this.stop();
+        return;
+      }
+    } else {
+      this.idChannel = client.config.ID_CHANNEL_SCHEDULE;
+    }
+
+    if (fs.existsSync(this.dataPath)) {
+      const data = JSON.parse(fs.readFileSync(this.dataPath, "utf-8"));
+      if (data.idMessage) {
+        this.idMessage = data.idMessage;
+      }
+    }
+
     this.client.on(ScheduleEvent.UPDATE, this.updateDiscordSchedule.bind(this));
   }
 
@@ -58,18 +89,35 @@ export default class ScheduleWorker extends Worker {
   async execute(): Promise<void> {
     const scheduleBuffer = await this.getSchedule();
     if (!scheduleBuffer) return;
-    if (!this.lastSchedule) {
+    if (!this.lastSchedule && !this.idMessage) {
       this.lastSchedule = scheduleBuffer;
       await this.sendInScheduleChannel(scheduleBuffer);
       return;
+    } else if (!this.lastSchedule && this.idMessage) {
+      // don't match with the same but that a minor bug
+      this.lastSchedule = await this.readScheduleFromMessage(this.idMessage);
     }
     console.log("Schedule updated!");
     this.client.emit(ScheduleEvent.UPDATE, this.lastSchedule!, scheduleBuffer!);
   }
 
+  async readScheduleFromMessage(idMessage: string): Promise<Buffer> {
+    const channel = (await this.client.channels.fetch(
+      this.idChannel!,
+    )) as TextChannel;
+    const message = await channel.messages.fetch(idMessage);
+    const attachment = message.attachments.first();
+    if (!attachment) throw new Error("No attachment found in message");
+    const scheduleUrl = attachment.url;
+    const scheduleBuffer = await fetch(scheduleUrl).then(
+      async (res) => await res.arrayBuffer().then((buf) => Buffer.from(buf)),
+    );
+    return Promise.resolve(scheduleBuffer);
+  }
+
   async sendInScheduleChannel(schedule: Buffer): Promise<void> {
     const channel = (await this.client.channels.fetch(
-      this.idChannel,
+      this.idChannel!,
     )) as TextChannel;
 
     const message = await channel.send({
@@ -84,7 +132,7 @@ export default class ScheduleWorker extends Worker {
   async updateMessageSchedule(schedule: Buffer): Promise<void> {
     if (!this.idMessage) return;
     const channel = (await this.client.channels.fetch(
-      this.idChannel,
+      this.idChannel!,
     )) as TextChannel;
     const message = (await channel.messages.fetch(
       this.idMessage,
@@ -110,8 +158,18 @@ export default class ScheduleWorker extends Worker {
     this.lastSchedule = undefined;
   }
 
+  async save(): Promise<void> {
+    console.log("Saving data...");
+    const data = JSON.stringify({
+      idChannel: this.idChannel,
+      idMessage: this.idMessage,
+    });
+    fs.writeFileSync(path.resolve(__dirname, "../../data/schedule.json"), data);
+  }
+
   async stop(): Promise<void> {
     clearInterval(this.interval!);
+    if (this.idChannel != null) await this.save();
     await this.browser?.close();
   }
 }
