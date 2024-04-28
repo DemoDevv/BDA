@@ -67,4 +67,10 @@ const isSchoolWeek = async function (
   });
 };
 
-export { getSchoolWeeks, getCurrentWeek, isSchoolWeek };
+const todayIsSchoolWeek = async function (browser: Browser): Promise<boolean> {
+  return await getCurrentWeek(browser).then((week) => {
+    return isSchoolWeek(week, browser);
+  });
+};
+
+export { getSchoolWeeks, getCurrentWeek, isSchoolWeek, todayIsSchoolWeek };
