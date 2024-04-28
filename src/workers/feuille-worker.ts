@@ -5,6 +5,13 @@ import type { ElementHandle } from "puppeteer";
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
 
+type SchoolWeek = "tnot_empty_week_slot";
+type SchoolType = SchoolWeek | "tempty_week_slot";
+type WeekData = {
+  weekNumber: number;
+  isSchoolWeek: SchoolType;
+};
+
 export default class FeuilleWorker extends Worker {
   public interval: Timer | null = null;
   public timeout: Timer | null = null;
@@ -64,6 +71,39 @@ export default class FeuilleWorker extends Worker {
         this.client.config.ENV == "DEV" ? 5000 : 7 * 24 * 60 * 60 * 1000,
       );
     }, timeToWait);
+  }
+
+  async getSchoolWeeks(): Promise<WeekData[]> {
+    const page = await this.browser?.newPage();
+    await page?.goto(this.URL_SCHEDULE);
+    const weeks = (await page?.$$(
+      ".weeks_table > tbody > tr:nth-child(1) > td",
+    )) as ElementHandle<HTMLDivElement>[];
+    const weeksData = await Promise.all(
+      weeks.map(async (week) => {
+        const weekNumber = (await page?.evaluate(
+          (el) => el.innerText,
+          week,
+        )) as string;
+        const isSchoolWeek = (await page?.evaluate(
+          (el) => el.className,
+          week,
+        )) as SchoolType;
+        return { weekNumber, isSchoolWeek };
+      }),
+    );
+    await page?.close();
+    return Promise.resolve(
+      weeksData
+        .slice(1)
+        .filter((week) => week.isSchoolWeek == "tnot_empty_week_slot")
+        .map((week) => {
+          return {
+            weekNumber: parseInt(week.weekNumber),
+            isSchoolWeek: "tnot_empty_week_slot",
+          };
+        }),
+    );
   }
 
   async getCurrentWeek(): Promise<number> {
