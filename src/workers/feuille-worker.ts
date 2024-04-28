@@ -4,6 +4,11 @@ import type { ElementHandle } from "puppeteer";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
+import {
+  getCurrentWeek,
+  getSchoolWeeks,
+  isSchoolWeek,
+} from "../helpers/school-weeks";
 
 export default class FeuilleWorker extends Worker {
   public interval: Timer | null = null;
@@ -61,27 +66,16 @@ export default class FeuilleWorker extends Worker {
         () => {
           this.execute();
         },
-        this.client.config.ENV == "DEV" ? 5000 : 7 * 24 * 60 * 60 * 1000,
+        this.client.config.ENV == "DEV" ? 5000 : 7 * 24 * 60 * 60 * 1000 + 1000,
       );
     }, timeToWait);
   }
 
-  async getCurrentWeek(): Promise<number> {
-    const page = await this.browser?.newPage();
-    await page?.goto(this.URL_SCHEDULE);
-    const current_week = (await page?.$(
-      "#wkSelList",
-    )) as ElementHandle<HTMLSelectElement>;
-    const current_week_value = (await page?.evaluate(
-      (el) => el!.value,
-      current_week,
-    )) as unknown as number;
-    await page?.close();
-    return Promise.resolve(current_week_value);
-  }
-
   async execute(): Promise<void> {
-    const currentWeek = await this.getCurrentWeek();
+    const currentWeek = await getCurrentWeek(this.browser!);
+
+    if (!(await isSchoolWeek(currentWeek + 1, this.browser!))) return;
+
     const guildWithRole = this.client.guilds.cache.find((guild) =>
       guild.roles.cache.has(this.idRole!),
     );

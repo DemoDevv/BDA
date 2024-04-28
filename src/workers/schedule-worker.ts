@@ -12,6 +12,7 @@ import compareSchedules from "../helpers/compare-schedules";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
+import { todayIsSchoolWeek } from "../helpers/school-weeks";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
@@ -87,6 +88,7 @@ export default class ScheduleWorker extends Worker {
   }
 
   async execute(): Promise<void> {
+    if (!todayIsSchoolWeek(this.browser!)) return;
     const scheduleBuffer = await this.getSchedule();
     if (!scheduleBuffer) return;
     if (!this.lastSchedule && !this.idMessage) {
