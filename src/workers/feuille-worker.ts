@@ -66,7 +66,7 @@ export default class FeuilleWorker extends Worker {
         () => {
           this.execute();
         },
-        this.client.config.ENV == "DEV" ? 5000 : 7 * 24 * 60 * 60 * 1000,
+        this.client.config.ENV == "DEV" ? 5000 : 7 * 24 * 60 * 60 * 1000 + 1000,
       );
     }, timeToWait);
   }
