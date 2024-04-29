@@ -88,7 +88,7 @@ export default class ScheduleWorker extends Worker {
   }
 
   async execute(): Promise<void> {
-    if (!todayIsSchoolWeek(this.browser!)) return;
+    if (!(await todayIsSchoolWeek(this.browser!))) return;
     const scheduleBuffer = await this.getSchedule();
     if (!scheduleBuffer) return;
     if (!this.lastSchedule && !this.idMessage) {

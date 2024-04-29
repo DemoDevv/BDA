@@ -19,15 +19,12 @@ const getSchoolWeeks = async function (browser: Browser): Promise<WeekData[]> {
   )) as ElementHandle<HTMLDivElement>[];
   const weeksData = await Promise.all(
     weeks.map(async (week) => {
-      const weekNumber = (await page?.evaluate(
-        (el) => el.innerText,
-        week,
-      )) as string;
-      const isSchoolWeek = (await page?.evaluate(
-        (el) => el.className,
-        week,
-      )) as SchoolType;
-      return { weekNumber, isSchoolWeek };
+      return await page?.evaluate((el) => {
+        return {
+          weekNumber: el.innerText as string,
+          isSchoolWeek: el.className as SchoolType,
+        };
+      }, week);
     }),
   );
   await page?.close();
@@ -69,7 +66,7 @@ const isSchoolWeek = async function (
 
 const todayIsSchoolWeek = async function (browser: Browser): Promise<boolean> {
   return await getCurrentWeek(browser).then((week) => {
-    return isSchoolWeek(week, browser);
+    return isSchoolWeek(week + 1, browser);
   });
 };
 
