@@ -1,14 +1,9 @@
 import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
-import type { ElementHandle } from "puppeteer";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import {
-  getCurrentWeek,
-  getSchoolWeeks,
-  isSchoolWeek,
-} from "../helpers/school-weeks";
+import { getCurrentWeek, isSchoolWeek } from "../helpers/school-weeks";
 
 export default class FeuilleWorker extends Worker {
   public interval: Timer | null = null;
