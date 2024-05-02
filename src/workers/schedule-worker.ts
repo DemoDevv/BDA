@@ -9,10 +9,10 @@ import type { MessageResolvable, TextChannel } from "discord.js";
 import { ScheduleEvent } from "../events";
 
 import compareSchedules from "../helpers/compare-schedules";
+import { todayIsSchoolWeek } from "../helpers/school-weeks";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import { todayIsSchoolWeek } from "../helpers/school-weeks";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
