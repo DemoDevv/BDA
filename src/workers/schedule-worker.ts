@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
 
+import type { MessageResolvable, TextChannel } from "discord.js";
+
 import fs from "node:fs";
 import path from "node:path";
-
-import type { MessageResolvable, TextChannel } from "discord.js";
 
 import { ScheduleEvent } from "../events";
 

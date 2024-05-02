@@ -3,6 +3,7 @@ import type { Browser } from "puppeteer";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
+
 import { getCurrentWeek, isSchoolWeek } from "../helpers/school-weeks";
 
 export default class FeuilleWorker extends Worker {
