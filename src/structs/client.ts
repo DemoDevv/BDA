@@ -16,7 +16,7 @@ import getBrowser from "../helpers/get-browser";
 import type { Config } from "../types";
 import type { Command } from "../commands/types";
 import type Worker from "./worker";
-import type { RegisteredWorker } from "../workers";
+import { RegisteredWorker } from "../workers";
 
 export default class Client extends DiscordClient {
   public config: Config;
@@ -91,6 +91,13 @@ export default class Client extends DiscordClient {
     const workersFiles = fs
       .readdirSync(workersDir)
       .filter((file) => file.endsWith(".ts"));
+    const numberOfWorkers = workersFiles.length;
+    const numberOfRegisteredWorkers = Object.keys(RegisteredWorker).length;
+
+    if (numberOfWorkers > numberOfRegisteredWorkers)
+      console.warn(
+        "some of your workers are not registered in the workers file !",
+      );
 
     for (const file of workersFiles) {
       const Worker = await import(path.resolve(workersDir, file));
