@@ -138,10 +138,14 @@ export default class ScheduleWorker extends Worker {
     else await this.updateMessageSchedule(newSchedule);
   }
 
-  changeChannel(idChannel: string): void {
+  changeChannel(
+    idChannel: string,
+    idMessage: string | null = null,
+    lastSchedule: Buffer | undefined = undefined,
+  ): void {
     this.idChannel = idChannel;
-    this.idMessage = null;
-    this.lastSchedule = undefined;
+    this.idMessage = idMessage;
+    this.lastSchedule = lastSchedule;
   }
 
   async save(): Promise<void> {

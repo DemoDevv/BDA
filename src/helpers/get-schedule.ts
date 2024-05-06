@@ -9,6 +9,7 @@ export default async (
     page.setViewport({ width: 1000, height: 1000 });
     if (!url) throw new Error("URL_SCHEDULE is not defined!");
     await page.goto(url);
+    await page.waitForSelector('body > span[style*="display: inline"][id]');
     const scheduleTable = await page.$(
       'body > span[style*="display: inline"][id]',
     );
