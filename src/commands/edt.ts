@@ -36,9 +36,9 @@ export default {
     });
     if (interaction.options.getBoolean("update")) {
       const message = await interaction.fetchReply();
-      const worker = client
-        .getWorkers()
-        .get(RegisteredWorker.SCHEDULE)! as ScheduleWorker;
+      const worker = client.getWorker(
+        RegisteredWorker.SCHEDULE,
+      ) as ScheduleWorker;
 
       worker.changeChannel(message.channelId, message.id, schedule);
     }
