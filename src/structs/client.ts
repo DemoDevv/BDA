@@ -3,8 +3,6 @@ import {
   Client as DiscordClient,
   Events,
   GatewayIntentBits,
-  Guild,
-  User,
 } from "discord.js";
 
 import fs from "node:fs";
