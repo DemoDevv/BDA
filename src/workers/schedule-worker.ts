@@ -1,4 +1,3 @@
-import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
 
 import type { MessageResolvable, TextChannel } from "discord.js";
@@ -11,6 +10,7 @@ import { ScheduleEvent } from "../events";
 import compareSchedules from "../helpers/compare-schedules";
 import { todayIsSchoolWeek } from "../helpers/school-weeks";
 import getSchedule from "../helpers/get-schedule";
+import getBrowser from "../helpers/get-browser";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
@@ -60,14 +60,7 @@ export default class ScheduleWorker extends Worker {
 
   async start(): Promise<void> {
     console.log("Schedule worker started!");
-    if (this.client.config.CHROME_BIN) {
-      this.browser = await puppeteer.launch({
-        executablePath: this.client.config.CHROME_BIN,
-        args: ["--no-sandbox"],
-      });
-    } else {
-      this.browser = await puppeteer.launch();
-    }
+    this.browser = await getBrowser(this.client.config.CHROME_BIN);
     this.interval = setInterval(
       () => {
         this.execute();

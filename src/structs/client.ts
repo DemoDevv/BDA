@@ -5,10 +5,13 @@ import {
   GatewayIntentBits,
 } from "discord.js";
 
+import type { Browser } from "puppeteer";
+
 import fs from "node:fs";
 import path from "node:path";
 
 import deployCommands from "../helpers/deploy-commands";
+import getBrowser from "../helpers/get-browser";
 
 import type { Config } from "../types";
 import type { Command } from "../commands/types";
@@ -18,6 +21,7 @@ export default class Client extends DiscordClient {
   public config: Config;
   public commands: Collection<string, Command>;
   public workers: Collection<string, Worker>;
+  public browser: Browser | undefined;
 
   constructor(config: Config) {
     super({
@@ -29,6 +33,8 @@ export default class Client extends DiscordClient {
   }
 
   async start(): Promise<void> {
+    this.browser = await getBrowser(this.config.CHROME_BIN);
+
     const commandsJson = await this.loadCommands();
 
     console.log("Loaded all commands!");
