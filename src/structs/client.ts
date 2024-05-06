@@ -98,6 +98,8 @@ export default class Client extends DiscordClient {
       console.warn(
         "some of your workers are not registered in the workers file !",
       );
+    if (numberOfWorkers < numberOfRegisteredWorkers)
+      console.warn("You have more registered worker than worker implemented"); // FIXME je suis pas sur de l'anglais la
 
     for (const file of workersFiles) {
       const Worker = await import(path.resolve(workersDir, file));
