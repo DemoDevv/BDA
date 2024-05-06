@@ -17,7 +17,6 @@ import type Client from "../structs/client";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
-  public URL_SCHEDULE = "https://edt.univ-nantes.fr/iut_nantes/g191826.xml";
   public browser: Browser | null = null;
 
   private lastSchedule: Buffer | undefined = undefined;
@@ -71,7 +70,10 @@ export default class ScheduleWorker extends Worker {
 
   async execute(): Promise<void> {
     if (!(await todayIsSchoolWeek(this.browser!))) return;
-    const scheduleBuffer = await getSchedule(this.browser!, this.URL_SCHEDULE);
+    const scheduleBuffer = await getSchedule(
+      this.browser!,
+      this.client.config.URL_SCHEDULE,
+    );
     if (!scheduleBuffer) return;
     if (!this.lastSchedule && !this.idMessage) {
       this.lastSchedule = scheduleBuffer;
