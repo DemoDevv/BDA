@@ -4,6 +4,8 @@ import type Client from "../structs/client";
 import getSchedule from "../helpers/get-schedule";
 import type ScheduleWorker from "../workers/schedule-worker";
 
+import { RegisteredWorker } from "../workers";
+
 export default {
   data: new SlashCommandBuilder()
     .setName("edt")
@@ -36,7 +38,7 @@ export default {
       const message = await interaction.fetchReply();
       const worker = client
         .getWorkers()
-        .get("schedule-worker")! as ScheduleWorker;
+        .get(RegisteredWorker.SCHEDULE)! as ScheduleWorker;
 
       worker.changeChannel(message.channelId, message.id, schedule);
     }

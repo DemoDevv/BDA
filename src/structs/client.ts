@@ -16,6 +16,7 @@ import getBrowser from "../helpers/get-browser";
 import type { Config } from "../types";
 import type { Command } from "../commands/types";
 import type Worker from "./worker";
+import type { RegisteredWorker } from "../workers";
 
 export default class Client extends DiscordClient {
   public config: Config;
@@ -101,5 +102,12 @@ export default class Client extends DiscordClient {
 
   getWorkers(): Collection<string, Worker> {
     return this.workers;
+  }
+
+  getWorker(worker: RegisteredWorker): Worker {
+    const registeredWorker = this.workers.get(worker);
+    if (!registeredWorker)
+      throw new Error("This worker is not registered in the workers file.");
+    return registeredWorker;
   }
 }
