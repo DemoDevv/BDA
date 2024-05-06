@@ -10,6 +10,7 @@ import { ScheduleEvent } from "../events";
 
 import compareSchedules from "../helpers/compare-schedules";
 import { todayIsSchoolWeek } from "../helpers/school-weeks";
+import getSchedule from "../helpers/get-schedule";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
@@ -75,21 +76,9 @@ export default class ScheduleWorker extends Worker {
     );
   }
 
-  async getSchedule(): Promise<Buffer | undefined> {
-    const page = await this.browser?.newPage();
-    page?.setViewport({ width: 1000, height: 1000 });
-    await page?.goto(this.URL_SCHEDULE);
-    const scheduleTable = await page?.$(
-      'body > span[style*="display: inline"][id]',
-    );
-    const scheduleBuffer = await scheduleTable?.screenshot();
-    await page?.close();
-    return scheduleBuffer;
-  }
-
   async execute(): Promise<void> {
     if (!(await todayIsSchoolWeek(this.browser!))) return;
-    const scheduleBuffer = await this.getSchedule();
+    const scheduleBuffer = await getSchedule(this.browser!, this.URL_SCHEDULE);
     if (!scheduleBuffer) return;
     if (!this.lastSchedule && !this.idMessage) {
       this.lastSchedule = scheduleBuffer;
