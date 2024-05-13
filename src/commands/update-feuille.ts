@@ -8,8 +8,12 @@ export default {
   data: new SlashCommandBuilder()
     .setName("update-feuille")
     .setDescription("Update the feuille manually."),
-  async execute(_: ChatInputCommandInteraction, client: Client): Promise<void> {
+  async execute(
+    interaction: ChatInputCommandInteraction,
+    client: Client,
+  ): Promise<void> {
     const worker = client.getWorker(RegisteredWorker.FEUILLE) as FeuilleWorker;
     await worker.execute();
+    await interaction.reply("Feuille updated!");
   },
 };
