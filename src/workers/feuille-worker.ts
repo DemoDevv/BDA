@@ -1,14 +1,14 @@
-import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
+
 import { getCurrentWeek, isSchoolWeek } from "../helpers/school-weeks";
+import getBrowser from "../helpers/get-browser";
 
 export default class FeuilleWorker extends Worker {
   public interval: Timer | null = null;
   public timeout: Timer | null = null;
-  public URL_SCHEDULE = "https://edt.univ-nantes.fr/iut_nantes/g191826.xml";
   public browser: Browser | null = null;
 
   public idRole: string | null = null;
@@ -35,14 +35,7 @@ export default class FeuilleWorker extends Worker {
   }
 
   async start(): Promise<void> {
-    if (this.client.config.CHROME_BIN) {
-      this.browser = await puppeteer.launch({
-        executablePath: this.client.config.CHROME_BIN,
-        args: ["--no-sandbox"],
-      });
-    } else {
-      this.browser = await puppeteer.launch();
-    }
+    this.browser = await getBrowser(this.client.config.CHROME_BIN);
     // wait the sunday at 00:00 to start the worker
     const now = new Date();
     const timeToWait =

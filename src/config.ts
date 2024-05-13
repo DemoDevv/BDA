@@ -10,6 +10,7 @@ const config = {
   ID_CHANNEL_SCHEDULE: Bun.env.ID_CHANNEL_SCHEDULE,
   ID_ROLE_FEUILLE: Bun.env.ID_ROLE_FEUILLE,
   CHROME_BIN: Bun.env.CHROME_BIN,
+  URL_SCHEDULE: Bun.env.URL_SCHEDULE,
   save: async () => {
     fs.writeFileSync(
       path.resolve("./.env"),

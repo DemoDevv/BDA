@@ -3,23 +3,26 @@ import {
   Client as DiscordClient,
   Events,
   GatewayIntentBits,
-  Guild,
-  User,
 } from "discord.js";
+
+import type { Browser } from "puppeteer";
 
 import fs from "node:fs";
 import path from "node:path";
 
 import deployCommands from "../helpers/deploy-commands";
+import getBrowser from "../helpers/get-browser";
 
 import type { Config } from "../types";
 import type { Command } from "../commands/types";
 import type Worker from "./worker";
+import { RegisteredWorker } from "../workers";
 
 export default class Client extends DiscordClient {
   public config: Config;
   public commands: Collection<string, Command>;
   public workers: Collection<string, Worker>;
+  public browser: Browser | undefined;
 
   constructor(config: Config) {
     super({
@@ -31,6 +34,8 @@ export default class Client extends DiscordClient {
   }
 
   async start(): Promise<void> {
+    this.browser = await getBrowser(this.config.CHROME_BIN);
+
     const commandsJson = await this.loadCommands();
 
     console.log("Loaded all commands!");
@@ -86,6 +91,15 @@ export default class Client extends DiscordClient {
     const workersFiles = fs
       .readdirSync(workersDir)
       .filter((file) => file.endsWith(".ts"));
+    const numberOfWorkers = workersFiles.length;
+    const numberOfRegisteredWorkers = Object.keys(RegisteredWorker).length;
+
+    if (numberOfWorkers > numberOfRegisteredWorkers)
+      console.warn(
+        "some of your workers are not registered in the workers file !",
+      );
+    if (numberOfWorkers < numberOfRegisteredWorkers)
+      console.warn("You have more registered worker than worker implemented"); // FIXME je suis pas sur de l'anglais la
 
     for (const file of workersFiles) {
       const Worker = await import(path.resolve(workersDir, file));
@@ -97,5 +111,12 @@ export default class Client extends DiscordClient {
 
   getWorkers(): Collection<string, Worker> {
     return this.workers;
+  }
+
+  getWorker(worker: RegisteredWorker): Worker {
+    const registeredWorker = this.workers.get(worker);
+    if (!registeredWorker)
+      throw new Error("This worker is not registered in the workers file.");
+    return registeredWorker;
   }
 }

@@ -1,22 +1,22 @@
-import puppeteer from "puppeteer";
 import type { Browser } from "puppeteer";
+
+import type { MessageResolvable, TextChannel } from "discord.js";
 
 import fs from "node:fs";
 import path from "node:path";
 
-import type { MessageResolvable, TextChannel } from "discord.js";
-
 import { ScheduleEvent } from "../events";
 
 import compareSchedules from "../helpers/compare-schedules";
+import { todayIsSchoolWeek } from "../helpers/school-weeks";
+import getSchedule from "../helpers/get-schedule";
+import getBrowser from "../helpers/get-browser";
 
 import Worker from "../structs/worker";
 import type Client from "../structs/client";
-import { todayIsSchoolWeek } from "../helpers/school-weeks";
 
 export default class ScheduleWorker extends Worker {
   public interval: Timer | null = null;
-  public URL_SCHEDULE = "https://edt.univ-nantes.fr/iut_nantes/g191826.xml";
   public browser: Browser | null = null;
 
   private lastSchedule: Buffer | undefined = undefined;
@@ -59,14 +59,7 @@ export default class ScheduleWorker extends Worker {
 
   async start(): Promise<void> {
     console.log("Schedule worker started!");
-    if (this.client.config.CHROME_BIN) {
-      this.browser = await puppeteer.launch({
-        executablePath: this.client.config.CHROME_BIN,
-        args: ["--no-sandbox"],
-      });
-    } else {
-      this.browser = await puppeteer.launch();
-    }
+    this.browser = await getBrowser(this.client.config.CHROME_BIN);
     this.interval = setInterval(
       () => {
         this.execute();
@@ -75,21 +68,12 @@ export default class ScheduleWorker extends Worker {
     );
   }
 
-  async getSchedule(): Promise<Buffer | undefined> {
-    const page = await this.browser?.newPage();
-    page?.setViewport({ width: 1000, height: 1000 });
-    await page?.goto(this.URL_SCHEDULE);
-    const scheduleTable = await page?.$(
-      'body > span[style*="display: inline"][id]',
-    );
-    const scheduleBuffer = await scheduleTable?.screenshot();
-    await page?.close();
-    return scheduleBuffer;
-  }
-
   async execute(): Promise<void> {
     if (!(await todayIsSchoolWeek(this.browser!))) return;
-    const scheduleBuffer = await this.getSchedule();
+    const scheduleBuffer = await getSchedule(
+      this.browser!,
+      this.client.config.URL_SCHEDULE,
+    );
     if (!scheduleBuffer) return;
     if (!this.lastSchedule && !this.idMessage) {
       this.lastSchedule = scheduleBuffer;
@@ -154,10 +138,14 @@ export default class ScheduleWorker extends Worker {
     else await this.updateMessageSchedule(newSchedule);
   }
 
-  changeChannel(idChannel: string): void {
+  changeChannel(
+    idChannel: string,
+    idMessage: string | null = null,
+    lastSchedule: Buffer | undefined = undefined,
+  ): void {
     this.idChannel = idChannel;
-    this.idMessage = null;
-    this.lastSchedule = undefined;
+    this.idMessage = idMessage;
+    this.lastSchedule = lastSchedule;
   }
 
   async save(): Promise<void> {
