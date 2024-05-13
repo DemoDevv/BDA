@@ -10,5 +10,6 @@ export default {
     .setDescription("Update the feuille manually."),
   async execute(_: ChatInputCommandInteraction, client: Client): Promise<void> {
     const worker = client.getWorker(RegisteredWorker.FEUILLE) as FeuilleWorker;
+    await worker.execute();
   },
 };
