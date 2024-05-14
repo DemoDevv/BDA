@@ -16,6 +16,6 @@ else
 fi
 
 mkdir data
-chmod u+rw data
+chmod 756 data
 docker build --pull -t bda-image .
 docker run --name bda -v ./data:/usr/src/app/data bda-image
