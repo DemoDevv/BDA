@@ -9,6 +9,7 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 process.on("SIGINT", () => {
+  console.log("Shutting down...");
   client.getWorkers().forEach((worker) => worker.stop());
   client.config.save();
   process.exit();
