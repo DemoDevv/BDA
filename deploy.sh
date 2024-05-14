@@ -15,7 +15,14 @@ else
   echo "Container or image doesn't exist. Skipping removal."
 fi
 
-mkdir data
-chmod 756 data
+volume_exists=$(docker volume ls | grep bda-data | wc -l)
+
+if [ $volume_exists -gt 0 ]; then
+  echo "volume 'bda-data' already exist."
+else
+  echo "Volume doesn't exist. Creating volume 'bda-data'... "
+  docker volume create bda-data
+fi
+
 docker build --pull -t bda-image .
-docker run --name bda -v ./data:/usr/src/app/data bda-image
+docker run --name bda -v bda-data:/usr/src/app/data bda-image
