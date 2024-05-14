@@ -6,8 +6,11 @@ export default async (chromeBin: string | undefined): Promise<Browser> => {
     return await puppeteer.launch({
       executablePath: chromeBin,
       args: ["--no-sandbox"],
+      handleSIGINT: false,
     });
   } else {
-    return await puppeteer.launch();
+    return await puppeteer.launch({
+      handleSIGINT: false,
+    });
   }
 };
