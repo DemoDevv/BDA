@@ -42,4 +42,4 @@ RUN chown -R bun:bun /usr/src/app
 
 # run the app
 USER bun
-ENTRYPOINT [ "bun", "run", "start" ]
+ENTRYPOINT [ "bun", "run", "src/index.ts" ]
