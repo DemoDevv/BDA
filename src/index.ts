@@ -8,11 +8,11 @@ client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user!.tag}`);
 });
 
+client.start();
+
 process.on("SIGINT", () => {
   console.log("Shutting down...");
   client.getWorkers().forEach((worker) => worker.stop());
   client.config.save();
   process.exit();
 });
-
-client.start();
