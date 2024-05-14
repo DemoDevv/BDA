@@ -83,8 +83,7 @@ export default class ScheduleWorker extends Worker {
       // don't match with the same but that a minor bug
       this.lastSchedule = await this.readScheduleFromMessage(this.idMessage);
     }
-    console.log("Schedule updated!");
-    this.client.emit(ScheduleEvent.UPDATE, this.lastSchedule!, scheduleBuffer!);
+    this.client.emit(ScheduleEvent.UPDATE, this.lastSchedule, scheduleBuffer);
   }
 
   async readScheduleFromMessage(idMessage: string): Promise<Buffer> {
@@ -134,6 +133,7 @@ export default class ScheduleWorker extends Worker {
     newSchedule: Buffer,
   ): Promise<void> {
     if (compareSchedules(lastSchedule, newSchedule)) return;
+    console.log("Schedule updated!");
     if (!this.idMessage) await this.sendInScheduleChannel(newSchedule);
     else await this.updateMessageSchedule(newSchedule);
   }
