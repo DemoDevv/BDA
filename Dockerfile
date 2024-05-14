@@ -11,12 +11,6 @@ RUN set -x \
     ttf-freefont \
     chromium
 
-# Création du dossier 'data' avant la définition du propriétaire
-RUN mkdir /usr/src/app/data
-
-# Définition du propriétaire du répertoire principal et du dossier 'data'
-RUN chown -R bun:bun /usr/src/app
-
 # install dependencies into temp directory
 # this will cache them and speed up future builds
 FROM base AS install
@@ -42,11 +36,10 @@ COPY --from=prerelease /usr/src/app/src ./src/
 COPY --from=prerelease /usr/src/app/package.json .
 COPY --from=prerelease /usr/src/app/.env .
 
+RUN mkdir /usr/src/app/data
+
 RUN chown -R bun:bun /usr/src/app
 
 # run the app
 USER bun
-
-RUN mkdir -p /usr/src/app/data
-
 ENTRYPOINT [ "bun", "run", "start" ]
