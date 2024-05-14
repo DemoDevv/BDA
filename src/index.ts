@@ -8,9 +8,9 @@ client.once(Events.ClientReady, (readyClient) => {
   console.log(`Logged in as ${readyClient.user!.tag}`);
 });
 
-process.on("SIGINT", () => {
+process.on("SIGINT", async () => {
   console.log("Shutting down...");
-  client.stop();
+  await client.stop();
   process.exit();
 });
 

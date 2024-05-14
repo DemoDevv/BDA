@@ -122,7 +122,7 @@ export default class Client extends DiscordClient {
 
   async stop(): Promise<void> {
     await this.browser?.close();
-    this.getWorkers().forEach((worker) => worker.stop());
-    this.config.save();
+    this.getWorkers().forEach(async (worker) => await worker.stop());
+    await this.config.save();
   }
 }
