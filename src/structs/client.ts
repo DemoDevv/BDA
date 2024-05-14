@@ -119,4 +119,10 @@ export default class Client extends DiscordClient {
       throw new Error("This worker is not registered in the workers file.");
     return registeredWorker;
   }
+
+  async stop(): Promise<void> {
+    await this.browser?.close();
+    this.getWorkers().forEach((worker) => worker.stop());
+    this.config.save();
+  }
 }
