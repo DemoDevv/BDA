@@ -50,6 +50,8 @@ export default class FeuilleWorker extends Worker {
     console.log(`Waiting ${timeToWait}ms to start the worker`);
     this.timeout = setTimeout(() => {
       console.log("[Feuille Worker] Starting the worker");
+      // call execute() once before setInterval
+      this.execute();
       this.interval = setInterval(
         () => {
           this.execute();
